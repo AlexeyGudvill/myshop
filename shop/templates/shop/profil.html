@@ -1,0 +1,57 @@
+﻿{% extends "shop/base.html" %}
+{% load calculations %}
+{% block title %}Профиль{% endblock title %}
+{% block content %}
+
+<h2>Профиль пользователя {{ user.full_name }} </h2>
+<h3>Личные данные</h3>
+<div class="profil_data">
+    <p>ФИО: {{ user.full_name }}</p>
+    <p>Логин (email): {{ user.email }}</p>
+    <p>Телефон: {{ user.phone_number }}</p>
+</div>
+<h3>Интернет-магазин</h3>
+<div class="order-basket">
+    <section class="basket-content">
+        <article class="basket-section">
+            <section class="basket-content" style="flex: 40%;">
+                <form method="post" action="{% url 'shop:cart' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="profil-btn">Перейти к корзине</button>
+                </form>
+            </section>
+            <section class="basket-content">
+                <p>Товаров в корзине: {{ cart.items.all|sum_cart }}</p>
+            </section>
+        </article>
+        <article class="basket-section">
+            <section class="basket-content" style="flex: 40%;">
+                <form method="post" action="{% url 'shop:order' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="profil-btn">Перейти к заказам</button>
+                </form>
+            </section>
+            <section class="basket-content" style="gap: 0;">
+                <p>Заказов в обработке: {{ pending_orders|sum_order }}</p>
+                <p>Оформленных заказов: {{ ordered_orders|sum_order }}</p>
+            </section>
+            
+        </article>
+    </section>
+    <nav class="basket-navigation">
+        <form method="post" action="{% url 'shop:category_list' %}">
+            {% csrf_token %}
+            <button type="submit" class="profil-btn">К категориям</button>
+        </form>
+        <form method="post" action="{% url 'shop:logout_view' %}">
+            {% csrf_token %}
+            <button type="submit" class="profil-btn">Выйти из профиля</button>
+        </form>
+    </nav>
+</div>
+<h3>Cпособы оплаты</h3>
+<p>*в разработке*</p>
+<div class="payment">
+
+</div>
+{% endblock content %}

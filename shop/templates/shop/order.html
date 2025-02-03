@@ -1,0 +1,97 @@
+﻿{% extends "shop/base.html" %}
+{% load static %}
+{% load calculations %}
+{% block title %}Заказы{% endblock title %}
+{% block content %}
+<h2>Информация о заказах</h2>
+<div class="profil_data">
+    <p>Пользователь: {{ user.full_name }}</p>
+    <article class="basket-content" style="flex-direction: row;">
+        <form method="post" action="{% url 'shop:cart' %}">
+            {% csrf_token %}
+            <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Перейти к корзине</button>
+        </form>
+        <form method="post" action="{% url 'shop:profil' %}">
+            {% csrf_token %}
+            <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Перейти в профиль</button>
+        </form>
+    </article>
+</div>
+
+<article class="order_article">
+    <h3>Ожидающие оформления</h3>
+    {% if pending_orders %}
+        <section class="text-in">Количество заказов в обработке: {{ pending_orders|sum_order }} </section>
+        {% for order in pending_orders %}
+        <section class="order-column">
+            <div><strong>Заказ №{{ order.id }} от {{ order.created_at }} — {{ order.status }}</strong></div>
+            {% for item in order.items.all %}
+            <div class="order-row">
+                <a class="order-images" href="{{ product.get_absolute_url }}">
+                    <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'img/err.jpg' %}{% endif %}">
+                </a>
+                <div class="order-details">
+                    <a class="product-name" href="{{ product.get_absolute_url }}">{{ item.product.name }}</a>
+                    <div class="product-info">
+                        {{ item.quantity }} шт. по {{ item.product.price }} руб. <br>
+                        <strong>Итого: {{ item.quantity|multiply:item.product.price }} руб.</strong>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            Общая стоимость заказа: {{ order.items.all|total_order_price }} руб.
+            <div class="basket-content" style="flex-direction: row;">
+                <form method="get" action="{% url 'shop:order_payment' order.id %}">
+                    <button type="submit" class="order-btn btn-success">Заказать</button>
+                </form>
+                <form method="post" action="{% url 'shop:remove_order' order.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="order-btn btn-danger">Удалить заказ</button>
+                </form>
+            </div>
+        </section>
+        {% endfor %}
+    {% else %}
+        <section class="text-in">
+            Заказов в обработке нет
+        </section>
+    {% endif %}
+</article>
+
+<article class="order_article">
+    <h3>Оформленные заказы</h3>
+    {% if ordered_orders %}
+        <section class="text-in">Количество оформленных заказов: {{ ordered_orders|sum_order }} </section>
+        {% for order in ordered_orders %}
+        <section class="order-column">
+            <div><strong>Заказ №{{ order.id }} от {{ order.created_at }} — {{ order.status }}</strong></div>
+            {% for item in order.items.all %}
+            <section class="order-row">
+                <a class="order-images" href="{{ product.get_absolute_url }}">
+                    <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'img/err.jpg' %}{% endif %}">
+                </a>
+                <div class="order-details">
+                    <a class="product-name" href="{{ product.get_absolute_url }}">{{ item.product.name }}</a>
+                    <div class="product-info">
+                        {{ item.quantity }} шт. по {{ item.product.price }} руб. <br>
+                        <strong>Итого: {{ item.quantity|multiply:item.product.price }} руб.</strong>
+                    </div>
+                </div>
+            </section>
+            {% endfor %}
+            Общая стоимость заказа: {{ order.items.all|total_order_price }} руб.
+        </section>
+        {% endfor %}
+    {% else %}
+        <section class="text-in">
+            Оформленных заказов нет
+        </section>
+    {% endif %}
+</article>
+
+<article class="order_article">
+    <h3>Предыдущие заказы</h3>
+    <section class="text-in">Количество полученных заказов: (со статусом "Получен") </section>
+</article>
+
+{% endblock content %}

@@ -1,0 +1,21 @@
+﻿{% extends "shop/base.html" %}
+{% load static %}
+{% block title %}Садовый магазин{% endblock title %}
+{% block content %}
+
+<h1>Интернет-магазин садовых растений</h1>
+<div class="main_logo">
+    <img src="{% static 'img/main_logo.jpg' %}" alt="logo">
+</div>
+<div class="div_products">
+    {% for c in categories %}
+    <div class="product" {% if category.slug == c.slug %}class="selected" {% endif %}>
+        <div class="product_img">
+            <img src="{% if c.image %}{{ c.image.url }}{% else %}{% static 'img/err.jpg' %}{% endif %}">
+        </div>
+        <a href="{{ c.get_absolute_url }}">{{ c.name }}</a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock content %}

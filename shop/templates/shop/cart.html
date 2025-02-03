@@ -1,0 +1,57 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% load calculations %}
+{% block title %}Корзина{% endblock %}
+{% block content %}
+<h2>Корзина</h2>
+<div class="profil_data">
+    <p>Пользователь: {{ user.full_name }}</p>
+    <article class="basket-content" style="flex-direction: row;">
+        <form method="post" action="{% url 'shop:order' %}">
+            {% csrf_token %}
+            <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Перейти к заказам</button>
+        </form>
+        <form method="post" action="{% url 'shop:profil' %}">
+            {% csrf_token %}
+            <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Перейти в профиль</button>
+        </form>
+    </article>
+</div>
+
+<article class="order_article">
+    <form method="post" action="{% url 'shop:cart_action' %}">
+        {% csrf_token %}
+        {% if cart.items.exists %}
+            <section class="text-in">Количество товаров в корзине: {{ cart.items.all|sum_cart }}</section>
+            {% for item in cart.items.all %}  
+            <section class="order-row">
+                <input type="checkbox" name="selected_items" value="{{ item.id }}">
+                <a class="order-images" href="{{ product.get_absolute_url }}">
+                    <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'img/err.jpg' %}{% endif %}">
+                </a>
+                <div class="order-details">
+                    <a class="product-name" href="{{ product.get_absolute_url }}">{{ item.product.name }}</a>
+                    <div class="product-info">
+                        {{ item.quantity }} шт. по {{ item.product.price }} руб. <br>
+                        <strong>Итого: {{ item.quantity|multiply:item.product.price }} руб.</strong>
+                    </div>
+                </div>    
+            </section>
+            {% endfor %}
+        {% else %}
+            <section class="text-in">Корзина пуста</section>
+        {% endif %}
+
+        <input type="hidden" name="action" value="order">
+        <div class="basket-content" style="flex-direction: row;">
+            <button type="submit" class="order-btn btn-success" onclick="this.form.action.value='order'">
+                Оформить заказ
+            </button>
+            <button type="submit" class="order-btn btn-danger" onclick="this.form.action.value='remove'">
+                Удалить выбранные товары
+            </button>
+        </div>
+    </form>
+</article>
+
+{% endblock content %}

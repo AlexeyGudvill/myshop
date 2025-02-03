@@ -1,0 +1,58 @@
+﻿{% extends "shop/base.html" %}
+{% load static %}
+{% block title %}Регистрация/Вход{% endblock title %}
+{% block content %}
+
+{% if 'user_id' in request.session %}
+<p>Желаете сменить пользователя или выйти?</p>
+<nav class="basket-navigation">
+    <form method="post" action="{% url 'shop:logout_view' %}">
+        {% csrf_token %}
+        <button type="submit" class="profil-btn" style="width: 25%">Выйти из профиля</button>
+    </form>
+</nav>
+{% else %}
+    <p>Вы не выполнили вход в профиль. </br>Если у вас нет профиля, пройдите регистрацию.</p>
+{% endif %}
+<br>
+<section class="form-container">
+    <h3>Вход</h3>
+    <article class="form-box">
+        <form method="post" action="{% url 'shop:login_view' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="email">Логин (email):</label>
+                <input type="text" name="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" name="password" id="password" required>
+            </div>
+            <button type="submit">Вход</button>
+        </form>
+    </article>
+    <h3>Регистрация</h3>
+    <article class="form-box">
+        <form method="post" action="{% url 'shop:login_register' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="full_name">ФИО:</label>
+                <input type="text" name="full_name" id="full_name" required>
+            </div>
+            <div class="form-group">
+                <label for="phone_number">Телефон:</label>
+                <input type="text" name="phone_number" id="phone_number" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-email">Логин (email):</label>
+                <input type="text" name="email" id="reg-email" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-password">Пароль:</label>
+                <input type="password" name="password" id="reg-password" required>
+            </div>
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+    </article>
+</section>
+{% endblock content %}

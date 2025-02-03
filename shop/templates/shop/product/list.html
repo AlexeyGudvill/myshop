@@ -1,0 +1,53 @@
+﻿{% extends "shop/base.html" %}
+{% load static %}
+{% block title %}
+    {% if category %}{{ category.name }}{% elif query %}{{ query }}{% else %}Products{% endif %}
+{% endblock %}
+{% block content %}
+
+<h2>{% if category %}{{ category.name }}{% elif query %}Результаты поиска по запросу: "{{ query }}"{% else %}Products{% endif %}</h2>
+<article class="basket-content">
+    <form method="post" action="{% url 'shop:category_list' %}">
+        {% csrf_token %}
+        <button type="submit" class="profil-btn" style="width: 25%">К категориям</button>
+    </form>
+    *сортировать по*ff
+</article>
+<div class="div_shop_product">
+    {% if products %}
+        {% for product in products %}
+        <div class="shop_product">
+            <div class="shop_product_img">
+                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/err.jpg' %}{% endif %}">
+            </div>
+            <div class="shop_product_description">
+                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a></br>
+                {{ product.description }}</br>
+                В наличии: {{ product.stock }} шт.</br>
+                Цена: {{ product.price }} руб.</br>
+            </div>
+            <div class="basket-content" style="flex: 0;">
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="">
+                    <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Описание</button>
+                </form>
+                <form method="post" action="{% url 'shop:add_to_cart_or_order' product.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="cart">
+                    <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Добавить в корзину</button>
+                </form>
+                <form method="post" action="{% url 'shop:add_to_cart_or_order' product.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="order">
+                    <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Заказать</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>Товары не найдены.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
