@@ -17,7 +17,7 @@
 				<section class="menu-section">
 					<img src="{% static 'img/main_logo.jpg' %}" alt="logo" width="100">
 					<a style="width: 300px;" href="/">Интернет-магазин</a>
-					<form method="get" action="{% url 'shop:product_search' %}">
+					<form method="get" action="{% url 'shop:product_list' %}">
 						<div class="header-form">
 							<input type="text" name="query" placeholder="Поиск..." required>
 						</div>

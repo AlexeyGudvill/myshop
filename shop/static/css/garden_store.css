@@ -231,7 +231,7 @@ main {
             box-shadow: 0 0 20px #444;
         }
 
-/* CATEGORY settings */
+/* CATEGORY settings (index) */
 
 .div_products {
     width: 100%;
@@ -274,7 +274,7 @@ main {
     }
 
 
-/* PRODUCT settings */
+/* PRODUCT settings (list) */
 
 .div_shop_product {
     position: relative;
@@ -325,6 +325,52 @@ main {
         color: var(--link-hover);
         transform: scale(1.03);
     }
+
+.select-custom {
+    position: relative;
+    display: inline-block;
+    width: 25%;
+}
+
+.select-label, .sort-select {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 0.5rem;
+    font-size: 1.075rem;
+    color: var(--gray);
+    background-color: var(--header-bg);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.arrow {
+    margin-left: 8px;
+    font-size: 1.15rem;
+    transition: transform 0.2s ease;
+}
+
+.sort-select {
+    position: absolute;
+    top: 0;
+    left: 0; 
+    opacity: 0; /* Прозрачный */ 
+}
+
+.sort-select option { 
+    color: var(--gray);
+}
+
+.select-custom:hover .select-label {
+    background-color: var(--header-bg-dark);
+    transform: scale(1.03);
+}
+
+.select-custom:focus-within .arrow {
+    transform: rotate(180deg);
+}
 
 /* REGISTRATION settings */
 

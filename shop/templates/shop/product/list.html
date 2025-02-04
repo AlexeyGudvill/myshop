@@ -7,11 +7,43 @@
 
 <h2>{% if category %}{{ category.name }}{% elif query %}Результаты поиска по запросу: "{{ query }}"{% else %}Products{% endif %}</h2>
 <article class="basket-content">
-    <form method="post" action="{% url 'shop:category_list' %}">
-        {% csrf_token %}
-        <button type="submit" class="profil-btn" style="width: 25%">К категориям</button>
+    <form method="get" class="select-custom">
+        <label for="category" class="select-label">К категориям <span class="arrow">&#9660</span></label>
+        <select name="category" id="category" class="sort-select" onchange="this.form.submit()">
+            {% for c in categories %}
+                <option value="{{ c.get_absolute_url }}" {% if category and category.slug == c.slug %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
     </form>
-    *сортировать по*
+    <form method="get" class="select-custom">
+        {% if query %}
+            <input type="hidden" name="query" value="{{ query }}">
+        {% endif %}
+        {% if category %}
+            <input type="hidden" name="category_slug" value="{{ category.slug }}">
+        {% endif %}
+        <label for="sort" class="select-label">Сортировать по <span class="arrow">&#9660</span></label>
+        <select name="sort" id="sort" class="sort-select" onchange="this.form.submit()">
+            <option value="name" {% if sort == 'name' %}selected{% endif %}>По алфавиту</option>
+            <option value="price" {% if sort == 'price' %}selected{% endif %}>По цене</option>
+            <option value="stock" {% if sort == 'stock' %}selected{% endif %}>По наличию</option>
+        </select>
+    </form>
+    <script>
+        document.getElementById('category').addEventListener('change', function() {
+            let selectedUrl = this.value;
+            if (selectedUrl) {
+                window.location.href = selectedUrl;
+            }
+        });
+        document.querySelectorAll(".select-label").forEach(label => {
+            label.addEventListener("click", function() {
+                this.nextElementSibling.focus(); // Открываем select при клике на label
+            });
+        });
+    </script>
 </article>
 <div class="div_shop_product">
     {% if products %}
