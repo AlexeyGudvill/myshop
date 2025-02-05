@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-tvn-1%an!x3&6*!yh*82mjkaw_lxsc^0!r^)-!=8c2q_j!!fxb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['alexeygudvill.pythonanywhere.com','127.0.0.1']
 
 
 # Application definition
@@ -147,3 +147,4 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+ALLOWED_HOSTS = os.getenv('alexeygudvill.pythonanywhere.com','127.0.0.1').split(',')
