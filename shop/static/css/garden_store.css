@@ -459,10 +459,12 @@ main {
 /* PROFIL settings */
 
 .profil_data {
+    display: grid;
     width: 100%;
     border: 1.5px solid var(--hr);
     padding: 1rem;
     margin: 2rem 0;
+    gap: 1rem
 }
 
 .profil_data p {

@@ -43,7 +43,11 @@ def product_list(request, category_slug=None): # товары по катего�
 def product_detail(request, id, slug, category_slug=None): # описание товара
     category = None
     categories = Category.objects.all()
-    product = get_object_or_404(Product, id=id, slug=slug, available=True)
+    product = get_object_or_404(Product, id=id, slug=slug)
+
+    # Проверяем доступность товара
+    if not product.available:
+        product = None  # Если недоступен, передаем None в шаблон
 
     if category_slug: # Фильтрация по категории
         category = get_object_or_404(Category, slug=category_slug)
@@ -207,7 +211,7 @@ def remove_order(request, order_id): # удаление заказа
     return redirect('shop:order') 
 
 
-def order_payment(request, order_id): # заказ товара - оплата
+def order_payment(request, order_id):  # Заказ товара - оплата
     if 'user_id' not in request.session:
         return redirect('shop:registration')
 
@@ -218,12 +222,50 @@ def order_payment(request, order_id): # заказ товара - оплата
         # Симуляция оплаты (можно интегрировать платежный шлюз)
         order.set_status_ordered()
 
-        # Отправка письма
+        # Формирование списка товаров для письма
+        order_items = "\n".join(
+            [f"{item.product.name} x {item.quantity} шт. - {item.product.price * item.quantity} руб."
+             for item in order.items.all()]
+        )
+
+        # Формирование текста письма
+        email_subject = f"Ваш заказ №{order.id} успешно оформлен!"
+        email_body = (
+            f"Здравствуйте, {order.user.full_name}!\n\n"
+            f"Ваш заказ №{order.id} успешно оформлен.\n\n"
+            f"Состав заказа:\n{order_items}\n\n"
+            f"Общая сумма: {order.total_price} руб.\n"
+            f"Дата оформления (UTC+0): {order.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+            f"Примерное время доставки: до 14 дней.\n\n"
+            f"Спасибо за покупку в нашем магазине!\n\n"
+            f"С уважением, команда магазина."
+        )
+
+        # Отправка письма покупателю
         send_mail(
-            'Ваш заказ оформлен',
-            f'Ваш заказ №{order.id} успешно оформлен на сумму {order.total_price} руб.',
+            email_subject,
+            email_body,
             'agoodwill04@gmail.com',
-            ['agoodwill04@gmail.com'],
+            [order.user.email],  # Отправка на почту покупателя
+            fail_silently=False,
+        )
+
+        # Отправка письма админу
+        admin_subject = f"Новый заказ №{order.id}"
+        admin_body = (
+            f"Новый заказ от {order.user.email}!\n\n"
+            f"Состав заказа:\n{order_items}\n\n"
+            f"Общая сумма: {order.total_price} руб.\n"
+            f"Дата оформления(UTC+0): {order.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+            f"Примерное время доставки: до 14 дней.\n\n"
+            f"Проверьте систему управления заказами."
+        )
+
+        send_mail(
+            admin_subject,
+            admin_body,
+            'agoodwill04@gmail.com',
+            ['agoodwill04@gmail.com'],  # Твоя почта
             fail_silently=False,
         )
 

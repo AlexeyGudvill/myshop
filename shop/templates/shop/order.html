@@ -67,11 +67,11 @@
             <div><strong>Заказ №{{ order.id }} от {{ order.created_at }} — {{ order.status }}</strong></div>
             {% for item in order.items.all %}
             <section class="order-row">
-                <a class="order-images" href="{{ product.get_absolute_url }}">
+                <a class="order-images" href="{{ item.product.get_absolute_url }}">
                     <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'img/err.jpg' %}{% endif %}">
                 </a>
                 <div class="order-details">
-                    <a class="product-name" href="{{ product.get_absolute_url }}">{{ item.product.name }}</a>
+                    <a class="product-name" href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
                     <div class="product-info">
                         {{ item.quantity }} шт. по {{ item.product.price }} руб. <br>
                         <strong>Итого: {{ item.quantity|multiply:item.product.price }} руб.</strong>

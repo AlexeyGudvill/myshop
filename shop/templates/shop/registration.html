@@ -5,7 +5,7 @@
 
 {% if 'user_id' in request.session %}
 <p>Желаете сменить пользователя или выйти?</p>
-<nav class="basket-navigation">
+<nav class="basket-navigation" style="margin-top: 1rem;">
     <form method="post" action="{% url 'shop:logout_view' %}">
         {% csrf_token %}
         <button type="submit" class="profil-btn" style="width: 25%">Выйти из профиля</button>

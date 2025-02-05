@@ -90,6 +90,13 @@ class Order(models.Model):
 
     def set_status_ordered(self):
         self.status = "Заказан"
+        for item in self.items.all(): # Уменьшаем количество товара и обновляем доступность
+            item.product.stock -= item.quantity 
+            if item.product.stock <= 0:
+                item.product.stock = 0
+                item.product.available = False 
+            item.product.save()
+
         self.save()
 
     def set_status_received(self):

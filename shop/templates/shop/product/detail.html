@@ -1,10 +1,10 @@
 ﻿{% extends "shop/base.html" %}
 {% load static %}
 {% block title %}
-    {% if product %}{{ product.name }}{% endif %}
+    {% if product %}{{ product.name }}{% else %}Product{% endif %}
 {% endblock %}
 {% block content %}
-
+{% if product %}
 <h2>Информация о товаре {% if product %}{{ product.name }}{% else %}Product{% endif %}</h2>
 <article class="basket-content">
     <form method="get" class="select-custom">
@@ -54,7 +54,8 @@
             <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Заказать</button>
         </form>
     </div>
-    
 </div>
-
+{% else %}
+    <p>Товар не найден или закончился на складе.</p>
+{% endif %}
 {% endblock %}
