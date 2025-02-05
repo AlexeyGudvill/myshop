@@ -1,1 +1,60 @@
-﻿
+﻿{% extends "shop/base.html" %}
+{% load static %}
+{% block title %}
+    {% if product %}{{ product.name }}{% endif %}
+{% endblock %}
+{% block content %}
+
+<h2>Информация о товаре {% if product %}{{ product.name }}{% else %}Product{% endif %}</h2>
+<article class="basket-content">
+    <form method="get" class="select-custom">
+        <label for="category" class="select-label">К категориям <span class="arrow">&#9660</span></label>
+        <select name="category" id="category" class="sort-select" onchange="this.form.submit()">
+            {% for c in categories %}
+                <option value="{{ c.get_absolute_url }}" {% if category and category.slug == c.slug %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+    <script>
+        document.getElementById('category').addEventListener('change', function() {
+            let selectedUrl = this.value;
+            if (selectedUrl) {
+                window.location.href = selectedUrl;
+            }
+        });
+        document.querySelectorAll(".select-label").forEach(label => {
+            label.addEventListener("click", function() {
+                this.nextElementSibling.focus(); // Открываем select при клике на label
+            });
+        });
+    </script>
+</article>
+<div class="product_detail">
+    <div class="product_detail_img">
+        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/err.jpg' %}{% endif %}">
+    </div>
+    <div class="product_detail_description">
+        <h2>{{ product.name }}</h2>
+        <p class="product_detail_p">Цена: {{ product.price }} руб.</p>
+        <p class="product_detail_p">{{ product.short_description }}</p>
+        <p class="product_detail_p">В наличии: {{ product.stock }} шт.</p> 
+        <p>Описание: </br>{{ product.description }}</p>
+    </div>
+    <div class="product_button">
+        <form method="post" action="{% url 'shop:add_to_cart_or_order' product.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="cart">
+            <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Добавить в корзину</button>
+        </form>
+        <form method="post" action="{% url 'shop:add_to_cart_or_order' product.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="order">
+            <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Заказать</button>
+        </form>
+    </div>
+    
+</div>
+
+{% endblock %}

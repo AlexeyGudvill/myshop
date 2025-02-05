@@ -40,11 +40,15 @@ def product_list(request, category_slug=None): # товары по катего�
     return render(request, 'shop/product/list.html', {'products': products, 'category': category, 'categories': categories, 'query': query, 'sort': sort})
 
 
-def product_detail(request, id, slug): # описание товара
+def product_detail(request, id, slug, category_slug=None): # описание товара
+    category = None
+    categories = Category.objects.all()
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
-    return render(request,
-                  'shop/product/detail.html',
-                  {'product': product})
+
+    if category_slug: # Фильтрация по категории
+        category = get_object_or_404(Category, slug=category_slug)
+        products = products.filter(category=category)
+    return render(request, 'shop/product/detail.html', {'product': product, 'category': category, 'categories': categories})
 
 
 def registration(request): # страница регистрации
