@@ -45,41 +45,41 @@
         });
     </script>
 </article>
+{% if products %}
 <div class="list_products">
-    {% if products %}
-        {% for product in products %}
-        <div class="list_product">
-            <a class="list_product_img" href="{{ product.get_absolute_url }}">
-                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/err.jpg' %}{% endif %}">
-            </a>
-            <div class="list_product_description">
-                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a></br>
-                {{ product.short_description }}</br>
-                В наличии: {{ product.stock }} шт.</br>
-                Цена: {{ product.price }} руб.</br>
-            </div>
-            <div class="basket-content" style="flex: 0;">
-                <form method="post" action="{% url 'shop:product_detail' product.id product.slug %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="">
-                    <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Описание</button>
-                </form>
-                <form method="post" action="{% url 'shop:add_to_cart_or_order' product.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="cart">
-                    <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Добавить в корзину</button>
-                </form>
-                <form method="post" action="{% url 'shop:add_to_cart_or_order' product.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="order">
-                    <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Заказать</button>
-                </form>
-            </div>
+    {% for product in products %}
+    <div class="list_product">
+        <a class="list_product_img" href="{{ product.get_absolute_url }}">
+            <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/err.jpg' %}{% endif %}">
+        </a>
+        <div class="list_product_description">
+            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a></br>
+            {{ product.short_description }}</br>
+            В наличии: {{ product.stock }} шт.</br>
+            Цена: {{ product.price }} руб.</br>
         </div>
-        {% endfor %}
-    {% else %}
-        <p>Товары не найдены или закончились на складе.</p>
-    {% endif %}
+        <div class="basket-content" style="flex: 0;">
+            <form method="post" action="{% url 'shop:product_detail' product.id product.slug %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="">
+                <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Описание</button>
+            </form>
+            <form method="post" action="{% url 'shop:add_to_cart_or_order' product.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="cart">
+                <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Добавить в корзину</button>
+            </form>
+            <form method="post" action="{% url 'shop:add_to_cart_or_order' product.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="order">
+                <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Заказать</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
 </div>
-
+{% else %}
+    </br>
+    <p>Товары не найдены или закончились на складе.</p>
+{% endif %}
 {% endblock %}
