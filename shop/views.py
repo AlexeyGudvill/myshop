@@ -3,8 +3,9 @@ from .models import ShopUser, Cart, CartItem, Order, OrderItem, Category, Produc
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 from django.http import JsonResponse
-from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
+from django.core.mail import get_connection, send_mail
+from django.conf import settings
 
 
 def category_list(request, category_slug=None): # страница категорий
@@ -273,13 +274,6 @@ def order_payment(request, order_id):  # Заказ товара - оплата
             f"Примерное время доставки: до 14 дней.\n\n"
             f"Спасибо за покупку в нашем магазине!"
         )
-        send_mail( # Отправка письма покупателю
-            email_subject,
-            email_body,
-            'agoodwill04@gmail.com',
-            [order.user.email],  # Отправка на почту покупателя
-            fail_silently=False,
-        )
 
         admin_subject = f"Новый заказ №{order.id}"
         admin_body = (
@@ -291,13 +285,20 @@ def order_payment(request, order_id):  # Заказ товара - оплата
             f"Примерное время доставки: до 14 дней.\n\n"
             f"Проверьте систему управления заказами."
         )
-        send_mail( # Отправка письма админу
-            admin_subject,
-            admin_body,
-            'agoodwill04@gmail.com',
-            ['agoodwill04@gmail.com'],  # Твоя почта
-            fail_silently=False,
-        )
+
+        # Явное открытие соединения SMTP перед отправкой писем
+        try:
+            with get_connection() as connection:
+                send_mail(
+                    email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [order.user.email],
+                    connection=connection
+                )
+                send_mail(
+                    admin_subject, admin_body, settings.DEFAULT_FROM_EMAIL, ['agoodwill04@gmail.com'],
+                    connection=connection
+                )
+        except Exception as e:
+            print("Ошибка отправки email:", e)
 
         return redirect('shop:order')  # Перенаправление на страницу заказов
 
