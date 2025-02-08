@@ -4,9 +4,11 @@
 {% block title %}Корзина{% endblock %}
 {% block content %}
 <h2>Корзина</h2>
-<div class="profil_data">
-    <p>Пользователь: {{ user.full_name }}</p>
-    <article class="basket-content" style="flex-direction: row;">
+<article class="profil_data">
+    <article class="basket-content">
+        <h3>Пользователь: {{ user.first_name }}</h3>
+    </article>
+    <article class="basket-content">
         <form method="post" action="{% url 'shop:order' %}">
             {% csrf_token %}
             <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Перейти к заказам</button>
@@ -16,12 +18,11 @@
             <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Перейти в профиль</button>
         </form>
     </article>
-</div>
-
+</article>
 <article class="order_article">
+    {% if cart.items.exists %}
     <form method="post" action="{% url 'shop:cart_action' %}">
         {% csrf_token %}
-        {% if cart.items.exists %}
             <section class="text-in">Количество товаров в корзине: {{ cart.items.all|sum_cart }}</section>
             {% for item in cart.items.all %}  
             <section class="order-row">
@@ -38,12 +39,8 @@
                 </div>    
             </section>
             {% endfor %}
-        {% else %}
-            <section class="text-in">Корзина пуста</section>
-        {% endif %}
-
         <input type="hidden" name="action" value="order">
-        <div class="basket-content" style="flex-direction: row;">
+        <div class="basket-content">
             <button type="submit" class="order-btn btn-success" onclick="this.form.action.value='order'">
                 Оформить заказ
             </button>
@@ -52,6 +49,9 @@
             </button>
         </div>
     </form>
+    {% else %}
+        <section class="text-in">Корзина пуста</section>
+    {% endif %}
 </article>
 
 {% endblock content %}

@@ -20,5 +20,5 @@ urlpatterns = [
     path('order/', views.order, name='order'),
     path('order/remove/<int:order_id>/', views.remove_order, name='remove_order'),
     path('order/<int:order_id>/payment/', views.order_payment, name='order_payment'),
-    
+    path("save_address/", views.save_address, name="save_address"),
 ]

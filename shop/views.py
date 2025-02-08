@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 from django.http import JsonResponse
 from django.core.mail import send_mail
+from django.contrib.auth.decorators import login_required
 
 
 def category_list(request, category_slug=None): # страница категорий
@@ -62,7 +63,8 @@ def registration(request): # страница регистрации
 def login_register(request): # регистрация
     if request.method == 'POST':
         email = request.POST['email']
-        full_name = request.POST['full_name']
+        first_name = request.POST['first_name']
+        surname = request.POST['surname']
         phone_number = request.POST['phone_number']
         password = request.POST['password']
 
@@ -72,7 +74,8 @@ def login_register(request): # регистрация
         
         user = ShopUser.objects.create(
             email=email,
-            full_name=full_name,
+            first_name=first_name,
+            surname=surname,
             phone_number=phone_number,
             password=make_password(password)
         )
@@ -96,7 +99,7 @@ def login_view(request): # вход
         if check_password(password, user.password):
             request.session['user_id'] = user.id
             request.session['email'] = user.email
-            messages.success(request, f"Добро пожаловать, {user.full_name}!")
+            messages.success(request, f"Добро пожаловать, {user.first_name}!")
             return redirect('shop:profil')
         else:
             messages.error(request, "Неверный логин или пароль.")
@@ -109,6 +112,24 @@ def logout_view(request): # выход из аккаунта
     request.session.flush()  # Удаляем сессию
     messages.success(request, "Вы вышли из системы.")
     return redirect('shop:registration')
+
+
+def save_address(request):
+    if 'user_id' not in request.session:
+        return redirect('shop:registration')
+    
+    if request.method == "POST":
+        user = ShopUser.objects.get(id=request.session['user_id'])
+        user.city = request.POST["city"]
+        user.street = request.POST["street"]
+        user.house = request.POST["house"]
+        user.apartment = request.POST.get("apartment", "")
+        user.postal_code = request.POST["postal_code"]
+
+        user.save()
+        return redirect("shop:profil")  # Перенаправление на страницу профиля
+
+    return redirect("shop:profil")
 
 
 def profil(request): # страница профиля
@@ -219,30 +240,40 @@ def order_payment(request, order_id):  # Заказ товара - оплата
     order.update_total_price()
 
     if request.method == "POST":
+        # Заполняем заказ адресом доставки пользователя
+        user = ShopUser.objects.get(id=request.session['user_id'])
+        order.city = user.city
+        order.street = user.street
+        order.house = user.house
+        order.apartment = user.apartment
+        order.postal_code = user.postal_code
+        order.save()
+
+        # Проверяем, заполнены ли данные доставки
+        if not order.is_valid():
+            messages.error(request, "Заполните все поля адреса доставки.")
+            return redirect("shop:order_payment", order_id=order.id)
+        
         # Симуляция оплаты (можно интегрировать платежный шлюз)
         order.set_status_ordered()
 
-        # Формирование списка товаров для письма
-        order_items = "\n".join(
+        order_items = "\n".join( # Формирование списка товаров для письма
             [f"{item.product.name} x {item.quantity} шт. - {item.product.price * item.quantity} руб."
-             for item in order.items.all()]
+            for item in order.items.all()]
         )
 
-        # Формирование текста письма
         email_subject = f"Ваш заказ №{order.id} успешно оформлен!"
         email_body = (
-            f"Здравствуйте, {order.user.full_name}!\n\n"
+            f"Здравствуйте, {order.user.first_name}!\n\n"
             f"Ваш заказ №{order.id} успешно оформлен.\n\n"
             f"Состав заказа:\n{order_items}\n\n"
             f"Общая сумма: {order.total_price} руб.\n"
             f"Дата оформления (UTC+0): {order.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+            f"Адрес доставки: {order.city}, ул.{order.street}, д.{order.house}, кв.{order.apartment if order.apartment else '-'}, {order.postal_code}\n"
             f"Примерное время доставки: до 14 дней.\n\n"
-            f"Спасибо за покупку в нашем магазине!\n\n"
-            f"С уважением, команда магазина."
+            f"Спасибо за покупку в нашем магазине!"
         )
-
-        # Отправка письма покупателю
-        send_mail(
+        send_mail( # Отправка письма покупателю
             email_subject,
             email_body,
             'agoodwill04@gmail.com',
@@ -250,18 +281,17 @@ def order_payment(request, order_id):  # Заказ товара - оплата
             fail_silently=False,
         )
 
-        # Отправка письма админу
         admin_subject = f"Новый заказ №{order.id}"
         admin_body = (
             f"Новый заказ от {order.user.email}!\n\n"
             f"Состав заказа:\n{order_items}\n\n"
             f"Общая сумма: {order.total_price} руб.\n"
-            f"Дата оформления(UTC+0): {order.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+            f"Дата оформления (UTC+0): {order.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+            f"Адрес доставки: {order.city}, ул.{order.street}, д.{order.house}, кв.{order.apartment if order.apartment else '-'}, {order.postal_code}\n"
             f"Примерное время доставки: до 14 дней.\n\n"
             f"Проверьте систему управления заказами."
         )
-
-        send_mail(
+        send_mail( # Отправка письма админу
             admin_subject,
             admin_body,
             'agoodwill04@gmail.com',

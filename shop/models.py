@@ -1,6 +1,7 @@
 ﻿from django.db import models
 from django.urls import reverse
 from django.core.validators import MinLengthValidator
+from django.utils.timezone import now
 
 
 class Category(models.Model):
@@ -48,11 +49,18 @@ class Product(models.Model):
 
 class ShopUser(models.Model):
     email = models.EmailField(unique=True, verbose_name="Email")
-    full_name = models.CharField(max_length=255, verbose_name="ФИО")
+    first_name = models.CharField(max_length=255, verbose_name="Имя")
+    surname = models.CharField(max_length=255, verbose_name="Фамилия")
     phone_number = models.CharField(max_length=20, verbose_name="Телефон")
     password = models.CharField(max_length=128, verbose_name="Пароль")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата регистрации")
-
+    
+    city = models.CharField(max_length=100, verbose_name="Город", default="Не указан")
+    street = models.CharField(max_length=255, verbose_name="Улица", default="Не указана")
+    house = models.CharField(max_length=20, verbose_name="Дом", default="Не указан")
+    apartment = models.CharField(max_length=20, verbose_name="Квартира", blank=True, null=True)
+    postal_code = models.CharField(max_length=20, verbose_name="Почтовый индекс", default="Не указан")
+    
     def __str__(self):
         return self.email
 
@@ -78,8 +86,15 @@ class CartItem(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(ShopUser, on_delete=models.CASCADE, related_name="orders")
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=50, default="Ожидает обработки")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)  # Итоговая цена
+    
+    city = models.CharField(max_length=100, verbose_name="Город")
+    street = models.CharField(max_length=255, verbose_name="Улица")
+    house = models.CharField(max_length=20, verbose_name="Дом")
+    apartment = models.CharField(max_length=20, verbose_name="Квартира", blank=True, null=True)
+    postal_code = models.CharField(max_length=20, verbose_name="Почтовый индекс")
 
     def __str__(self):
         return f"Заказ {self.id} от {self.user.email}"
@@ -90,6 +105,7 @@ class Order(models.Model):
 
     def set_status_ordered(self):
         self.status = "Заказан"
+        self.updated_at = now()
         for item in self.items.all(): # Уменьшаем количество товара и обновляем доступность
             item.product.stock -= item.quantity 
             if item.product.stock <= 0:
@@ -103,6 +119,10 @@ class Order(models.Model):
         self.status = "Получен"
         self.save() 
 
+    def is_valid(self): #Проверяет, заполнен ли адрес доставки
+        return all([self.city != "", self.street != "", self.house != "", self.postal_code != "", 
+                    self.city != "Не указан", self.street != "Не указана", self.house != "Не указан", self.postal_code != "Не указан"])
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
@@ -110,3 +130,4 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
+    

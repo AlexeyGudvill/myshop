@@ -15,11 +15,13 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 admin.site.register(Product, ProductAdmin)
 
+
 class ShopUserAdmin(admin.ModelAdmin):
-    list_display = ['email', 'full_name', 'phone_number', 'created_at']
+    list_display = ['email', 'first_name', 'surname', 'phone_number', 'created_at', 'city', 'postal_code']
     list_filter = ['created_at']
-    search_fields = ['email', 'full_name']
+    search_fields = ['email', 'first_name']
 admin.site.register(ShopUser, ShopUserAdmin)
+
 
 class CartItemInline(admin.TabularInline):
     model = CartItem
@@ -38,7 +40,7 @@ class OrderItemInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['user', 'created_at', 'status']
+    list_display = ['user', 'created_at','updated_at', 'status', 'city', 'street', 'house', 'apartment', 'postal_code']
     list_filter = ['status', 'created_at']
     search_fields = ['user__username', 'user__email']
     inlines = [OrderItemInline]

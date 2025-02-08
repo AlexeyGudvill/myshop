@@ -4,9 +4,11 @@
 {% block title %}Заказы{% endblock title %}
 {% block content %}
 <h2>Информация о заказах</h2>
-<div class="profil_data">
-    <p>Пользователь: {{ user.full_name }}</p>
-    <article class="basket-content" style="flex-direction: row;">
+<article class="profil_data">
+    <section class="basket-content">
+        <h3>Пользователь: {{ user.first_name }}</h3>
+    </section>
+    <section class="basket-content">
         <form method="post" action="{% url 'shop:cart' %}">
             {% csrf_token %}
             <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Перейти к корзине</button>
@@ -15,9 +17,8 @@
             {% csrf_token %}
             <button type="submit" class="profil-btn" style="width: 100%; padding: 0 1rem;">Перейти в профиль</button>
         </form>
-    </article>
-</div>
-
+    </section>
+</article>
 <article class="order_article">
     <h3>Ожидающие оформления</h3>
     {% if pending_orders %}
@@ -39,8 +40,11 @@
                 </div>
             </div>
             {% endfor %}
-            Общая стоимость заказа: {{ order.items.all|total_order_price }} руб.
-            <div class="basket-content" style="flex-direction: row;">
+            <article class="basket-section" style="gap: 0.5rem;">
+                <p>Общая стоимость заказа: {{ order.items.all|total_order_price }} руб.</p>
+                <p>Перед заказом проверьте свой адрес доставки в Профиле</p>
+            </article>
+            <div class="basket-content">
                 <form method="get" action="{% url 'shop:order_payment' order.id %}">
                     <button type="submit" class="order-btn btn-success">Заказать</button>
                 </form>
@@ -52,19 +56,16 @@
         </section>
         {% endfor %}
     {% else %}
-        <section class="text-in">
-            Заказов в обработке нет
-        </section>
+        <section class="text-in">Заказов в обработке нет</section>
     {% endif %}
 </article>
-
 <article class="order_article">
     <h3>Оформленные заказы</h3>
     {% if ordered_orders %}
         <section class="text-in">Количество оформленных заказов: {{ ordered_orders|sum_order }} </section>
         {% for order in ordered_orders %}
         <section class="order-column">
-            <div><strong>Заказ №{{ order.id }} от {{ order.created_at }} — {{ order.status }}</strong></div>
+            <div><strong>Заказ №{{ order.id }} от {{ order.updated_at }} — {{ order.status }}</strong></div>
             {% for item in order.items.all %}
             <section class="order-row">
                 <a class="order-images" href="{{ item.product.get_absolute_url }}">
@@ -79,13 +80,13 @@
                 </div>
             </section>
             {% endfor %}
-            Общая стоимость заказа: {{ order.items.all|total_order_price }} руб.
+            <article class="basket-section">
+                <p>Общая стоимость заказа: {{ order.items.all|total_order_price }} руб.</p>
+            </article>
         </section>
         {% endfor %}
     {% else %}
-        <section class="text-in">
-            Оформленных заказов нет
-        </section>
+        <section class="text-in">Оформленных заказов нет</section>
     {% endif %}
 </article>
 

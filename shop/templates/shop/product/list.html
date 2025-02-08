@@ -6,7 +6,7 @@
 {% block content %}
 
 <h2>{% if category %}{{ category.name }}{% elif query %}Результаты поиска по запросу: "{{ query }}"{% else %}Products{% endif %}</h2>
-<article class="basket-content">
+<article class="basket-section">
     <form method="get" class="select-custom">
         <label for="category" class="select-label">К категориям <span class="arrow">&#9660</span></label>
         <select name="category" id="category" class="sort-select" onchange="this.form.submit()">
@@ -58,7 +58,7 @@
             В наличии: {{ product.stock }} шт.</br>
             Цена: {{ product.price }} руб.</br>
         </div>
-        <div class="basket-content" style="flex: 0;">
+        <div class="basket-section">
             <form method="post" action="{% url 'shop:product_detail' product.id product.slug %}">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="">
