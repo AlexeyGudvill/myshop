@@ -9,6 +9,7 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="{% static 'css/garden_store.css' %}">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body data-theme="color">
 	<div class="wrapper">
@@ -43,6 +44,27 @@
 			<p>Телефон: +12345677890</p>
 			<p>Email: admin@admin.com</p>
 		</footer>
-	</div>	
+	</div>
+	{% if messages %}
+	<div class="toast-container position-fixed bottom-0 end-0 p-3 z-index-1050">
+		{% for message in messages %}
+			<div class="toast d-flex align-items-center text-white bg-{{ message.tags }} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+				<div class="toast-body">{{ message }}</div>
+				<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+			</div>
+		{% endfor %}
+	</div>
+	{% endif %}
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			let toasts = document.querySelectorAll(".toast");
+			toasts.forEach((alert) => {
+				setTimeout(() => {
+					toast.classList.remove("show"); // Скроет Bootstrap-уведомление
+					setTimeout(() => toast.remove(), 500); // Полностью удалит из DOM
+				}, 3000); // 3 секунды
+			});
+		});
+	</script>	
 </body>
 </html>

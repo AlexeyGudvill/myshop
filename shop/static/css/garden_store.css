@@ -110,6 +110,27 @@ input:focus {
     height: 100%;
 }
 
+.toast {
+    opacity: 0.9;
+    animation: slideIn 0.5s ease-out, fadeOut 0.5s ease-in 3s forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
 /* HEADER settings */
 
 header {

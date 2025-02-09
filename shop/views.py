@@ -70,7 +70,7 @@ def login_register(request): # регистрация
         password = request.POST['password']
 
         if ShopUser.objects.filter(email=email).exists():
-            messages.error(request, "Пользователь с таким логином уже существует.")
+            messages.error(request, "Пользователь с таким логином уже существует!")
             return redirect('shop:registration')
         
         user = ShopUser.objects.create(
@@ -94,7 +94,7 @@ def login_view(request): # вход
         try:
             user = ShopUser.objects.get(email=email)
         except ShopUser.DoesNotExist:
-            messages.error(request, "Неверный логин или пароль.")
+            messages.error(request, "Неверный логин или пароль!")
             return redirect('shop:registration')
 
         if check_password(password, user.password):
@@ -103,7 +103,7 @@ def login_view(request): # вход
             messages.success(request, f"Добро пожаловать, {user.first_name}!")
             return redirect('shop:profil')
         else:
-            messages.error(request, "Неверный логин или пароль.")
+            messages.error(request, "Неверный логин или пароль!")
             return redirect('shop:registration')
 
     return render(request, 'shop/registration.html')
@@ -126,8 +126,9 @@ def save_address(request):
         user.house = request.POST["house"]
         user.apartment = request.POST.get("apartment", "")
         user.postal_code = request.POST["postal_code"]
-
+ 
         user.save()
+        messages.success(request, "Адрес доставки обновлён.")
         return redirect("shop:profil")  # Перенаправление на страницу профиля
 
     return redirect("shop:profil")
@@ -176,6 +177,7 @@ def add_to_cart_or_order(request, product_id): # действия с товар�
     if action == 'order': # Логика оформления заказа напрямую
         order = Order.objects.create(user=user)
         OrderItem.objects.create(order=order, product=product, quantity=1)
+        messages.success(request, "Товар добавлен в заказы!")
         return redirect('shop:order')
     
     elif action == 'cart': # Логика добавления в корзину
@@ -183,6 +185,7 @@ def add_to_cart_or_order(request, product_id): # действия с товар�
         item, created = CartItem.objects.get_or_create(cart=cart, product=product)
         item.quantity += 1
         item.save()
+        messages.success(request, "Товар добавлен в корзину!")
         return redirect('shop:cart')
 
     return redirect('shop:cart')
@@ -205,6 +208,7 @@ def cart_action(request): # действия с товарами в корзин
                     cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
                     OrderItem.objects.create(order=order, product=cart_item.product, quantity=cart_item.quantity)
                 CartItem.objects.filter(id__in=selected_items).delete() # Удаляем оформленные товары из корзины
+            messages.success(request, "Товар добавлен в заказы!")
             return redirect('shop:order')
         
         elif action == "remove": # Логика удаления товаров
@@ -215,6 +219,7 @@ def cart_action(request): # действия с товарами в корзин
                     cart_item.save()
                 else:
                     cart_item.delete()
+            messages.success(request, "Товар удалён из корзины!")
             return redirect('shop:cart')
 
     return redirect('shop:cart')
@@ -229,6 +234,7 @@ def remove_order(request, order_id): # удаление заказа
 
     if order.status == "Ожидает обработки":
         order.delete()
+        messages.success(request, "Товар удалён из заказов!")
     
     return redirect('shop:order') 
 
@@ -257,6 +263,7 @@ def order_payment(request, order_id):  # Заказ товара - оплата
         
         # Симуляция оплаты (можно интегрировать платежный шлюз)
         order.set_status_ordered()
+        messages.success(request, "Заказ успешно оформлен!")
 
         order_items = "\n".join( # Формирование списка товаров для письма
             [f"{item.product.name} x {item.quantity} шт. - {item.product.price * item.quantity} руб."
@@ -298,6 +305,7 @@ def order_payment(request, order_id):  # Заказ товара - оплата
                     connection=connection
                 )
         except Exception as e:
+            messages.error(request, "Ошибка отправки email!")
             print("Ошибка отправки email:", e)
 
         return redirect('shop:order')  # Перенаправление на страницу заказов
