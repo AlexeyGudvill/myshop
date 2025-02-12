@@ -117,6 +117,7 @@ def logout_view(request): # выход из аккаунта
 
 def save_address(request):
     if 'user_id' not in request.session:
+        messages.error(request, "Вы не выполнили вход в профиль. Если у вас нет профиля, пройдите регистрацию.")
         return redirect('shop:registration')
     
     if request.method == "POST":
@@ -136,6 +137,7 @@ def save_address(request):
 
 def profil(request): # страница профиля
     if 'user_id' not in request.session:
+        messages.error(request, "Вы не выполнили вход в профиль. Если у вас нет профиля, пройдите регистрацию.")
         return redirect('shop:registration')
 
     user = ShopUser.objects.get(id=request.session['user_id'])
@@ -148,6 +150,7 @@ def profil(request): # страница профиля
 
 def cart(request): # страница корзины
     if 'user_id' not in request.session:
+        messages.error(request, "Вы не выполнили вход в профиль. Если у вас нет профиля, пройдите регистрацию.")
         return redirect('shop:registration')
     
     user = ShopUser.objects.get(id=request.session['user_id'])
@@ -157,6 +160,7 @@ def cart(request): # страница корзины
 
 def order(request): # страница заказов
     if 'user_id' not in request.session:
+        messages.error(request, "Вы не выполнили вход в профиль. Если у вас нет профиля, пройдите регистрацию.")
         return redirect('shop:registration')
 
     user = ShopUser.objects.get(id=request.session['user_id'])
@@ -168,6 +172,7 @@ def order(request): # страница заказов
 
 def add_to_cart_or_order(request, product_id): # действия с товарами: добавить в корзину или заказать
     if 'user_id' not in request.session:
+        messages.error(request, "Вы не выполнили вход в профиль. Если у вас нет профиля, пройдите регистрацию.")
         return redirect('shop:registration')
 
     user = ShopUser.objects.get(id=request.session['user_id'])
@@ -193,6 +198,7 @@ def add_to_cart_or_order(request, product_id): # действия с товар�
 
 def cart_action(request): # действия с товарами в корзине: удалить или заказать
     if 'user_id' not in request.session:
+        messages.error(request, "Вы не выполнили вход в профиль. Если у вас нет профиля, пройдите регистрацию.")
         return redirect('shop:registration')
 
     if request.method == "POST":
@@ -227,6 +233,7 @@ def cart_action(request): # действия с товарами в корзин
 
 def remove_order(request, order_id): # удаление заказа
     if 'user_id' not in request.session:
+        messages.error(request, "Вы не выполнили вход в профиль. Если у вас нет профиля, пройдите регистрацию.")
         return redirect('shop:registration')
 
     user = ShopUser.objects.get(id=request.session['user_id'])
@@ -241,6 +248,7 @@ def remove_order(request, order_id): # удаление заказа
 
 def order_payment(request, order_id):  # Заказ товара - оплата
     if 'user_id' not in request.session:
+        messages.error(request, "Вы не выполнили вход в профиль. Если у вас нет профиля, пройдите регистрацию.")
         return redirect('shop:registration')
 
     order = get_object_or_404(Order, id=order_id, user__id=request.session['user_id'])
